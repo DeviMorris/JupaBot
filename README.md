@@ -52,7 +52,7 @@ When a user reacts to a welcome message with CAPTCHA enabled, the bot:
 3. Waits for the correct text response
 4. Assigns the configured roles on success
 
-<img src="https://devimorris.tech/example.png" alt="CAPTCHA example" width="300">
+<img src="https://devimorris.tech/example.png" alt="CAPTCHA example" width="500">
 
 ---
 
