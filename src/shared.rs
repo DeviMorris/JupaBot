@@ -15,7 +15,9 @@ pub struct CaptchaState {
     pub answer: String,
 }
 
-pub static CAPTCHA_STATES: std::sync::OnceLock<std::sync::RwLock<std::collections::HashMap<String, CaptchaState>>> = std::sync::OnceLock::new();
+pub static CAPTCHA_STATES: std::sync::OnceLock<
+    std::sync::RwLock<std::collections::HashMap<String, CaptchaState>>,
+> = std::sync::OnceLock::new();
 
 pub fn embed(title: &str) -> EmbedBuilder {
     EmbedBuilder::new()
