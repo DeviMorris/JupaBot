@@ -11,10 +11,10 @@ pub async fn check_admin(rest: &Rest, message: &Message) -> bool {
         None => return false,
     };
 
-    if let Ok(guild) = rest.get::<ApiGuild>(&Routes::guild(guild_id)).await {
-        if guild.owner_id == message.author.id {
-            return true;
-        }
+    if let Ok(guild) = rest.get::<ApiGuild>(&Routes::guild(guild_id)).await
+        && guild.owner_id == message.author.id
+    {
+        return true;
     }
 
     if let Ok(member) = rest
@@ -32,20 +32,18 @@ pub async fn check_admin(rest: &Rest, message: &Message) -> bool {
             .await
         {
             for role in roles {
-                if let Some(id) = role.get("id").and_then(|i| i.as_str()) {
-                    if member_roles.contains(&id) {
-                        if let Some(perms_str) = role.get("permissions").and_then(|p| p.as_str()) {
-                            if let Ok(perms) = perms_str.parse::<u64>() {
-                                // 8 is ADMINISTRATOR, 32 is MANAGE_GUILD
-                                if (perms & 8) == 8
-                                    || (perms & 32) == 32
-                                    || (perms & 4) == 4
-                                    || (perms & 2) == 2
-                                {
-                                    return true;
-                                }
-                            }
-                        }
+                if let Some(id) = role.get("id").and_then(|i| i.as_str())
+                    && member_roles.contains(&id)
+                    && let Some(perms_str) = role.get("permissions").and_then(|p| p.as_str())
+                    && let Ok(perms) = perms_str.parse::<u64>()
+                {
+                    // 8 is ADMINISTRATOR, 32 is MANAGE_GUILD
+                    if (perms & 8) == 8
+                        || (perms & 32) == 32
+                        || (perms & 4) == 4
+                        || (perms & 2) == 2
+                    {
+                        return true;
                     }
                 }
             }
@@ -115,7 +113,7 @@ pub fn time_from_secs(secs: u64) -> String {
 }
 
 fn is_leap(y: u64) -> bool {
-    (y % 4 == 0 && y % 100 != 0) || y % 400 == 0
+    (y.is_multiple_of(4) && !y.is_multiple_of(100)) || y.is_multiple_of(400)
 }
 
 pub fn iso_8601(secs_since_epoch: u64) -> String {

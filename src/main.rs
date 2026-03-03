@@ -121,15 +121,15 @@ async fn main() {
 
                     let msg_id = reaction.message_id.to_string();
 
-                    if let Some(welcome_rec) = db_client.get_welcome_message(&msg_id).await {
-                        if let Some(g_id) = &reaction.guild_id {
+                    if let Some(welcome_rec) = db_client.get_welcome_message(&msg_id).await
+                        && let Some(g_id) = &reaction.guild_id {
                             let u_id = reaction.user_id.to_string();
                             let role_ids: Vec<&str> = welcome_rec.roles.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
 
                             let mut has_roles = false;
                             let member_route = format!("/guilds/{}/members/{}", g_id, u_id);
-                            if let Ok(m_data) = rest.get::<serde_json::Value>(&member_route).await {
-                                if let Some(roles_arr) = m_data["roles"].as_array() {
+                            if let Ok(m_data) = rest.get::<serde_json::Value>(&member_route).await
+                                && let Some(roles_arr) = m_data["roles"].as_array() {
                                     let member_roles: Vec<String> = roles_arr.iter().filter_map(|r| r.as_str().map(String::from)).collect();
                                     for req_role in &role_ids {
                                         if member_roles.contains(&req_role.to_string()) {
@@ -138,7 +138,6 @@ async fn main() {
                                         }
                                     }
                                 }
-                            }
 
                             if has_roles {
                                 return;
@@ -151,9 +150,9 @@ async fn main() {
                                     "charset": welcome_rec.captcha_type
                                 });
                                 let c = reqwest::Client::new();
-                                if let Ok(res) = c.post("https://api.devimorris.tech/api/captcha/generate").json(&body).send().await {
-                                    if let Ok(json) = res.json::<serde_json::Value>().await {
-                                        if let (Some(text), Some(b64)) = (json["captcha_text"].as_str(), json["image_base64"].as_str()) {
+                                if let Ok(res) = c.post("https://api.devimorris.tech/api/captcha/generate").json(&body).send().await
+                                    && let Ok(json) = res.json::<serde_json::Value>().await
+                                        && let (Some(text), Some(b64)) = (json["captcha_text"].as_str(), json["image_base64"].as_str()) {
                                             {
                                                 let state = crate::shared::CaptchaState {
                                                     roles: welcome_rec.roles.clone(),
@@ -169,10 +168,10 @@ async fn main() {
                                             let clean_b64 = b64.replace("data:image/png;base64,", "");
                                             let img_data = base64::Engine::decode(&base64::engine::general_purpose::STANDARD, clean_b64).unwrap_or_default();
 
-                                            let dm_route = format!("/users/@me/channels");
+                                            let dm_route = "/users/@me/channels".to_string();
                                             let dm_body = serde_json::json!({"recipient_id": u_id});
-                                            if let Ok(dm_res) = rest.post::<serde_json::Value>(&dm_route, Some(&dm_body)).await {
-                                                if let Some(dm_id) = dm_res["id"].as_str() {
+                                            if let Ok(dm_res) = rest.post::<serde_json::Value>(&dm_route, Some(&dm_body)).await
+                                                && let Some(dm_id) = dm_res["id"].as_str() {
                                                     let file = fluxer_builders::file::FileAttachment::new("captcha.png", img_data);
                                                     let payload = fluxer_builders::MessagePayload::new().content("Please solve this CAPTCHA by replying with the text in the image.").build();
                                                     let form = fluxer_builders::build_multipart_form(&payload, &[file]);
@@ -182,10 +181,7 @@ async fn main() {
                                                         tracing::error!("Failed to send CAPTCHA DM: {:?}", e);
                                                     }
                                                 }
-                                            }
                                         }
-                                    }
-                                }
                             } else {
                                 for r_id in role_ids {
                                     let route = format!("/guilds/{}/members/{}/roles/{}", g_id, u_id, r_id);
@@ -196,12 +192,11 @@ async fn main() {
                                 }
                             }
                         }
-                    }
                 }
                 DispatchEvent::GuildMemberAdd { member } => {
                     let guild_id = member.guild_id.to_string();
-                    if let Some(greet_rec) = db_client.get_greeting(&guild_id).await {
-                        if greet_rec.enabled == "true" {
+                    if let Some(greet_rec) = db_client.get_greeting(&guild_id).await
+                        && greet_rec.enabled == "true" {
                             let channel_id = greet_rec.channel_id.clone();
                             let username = member.user.username.clone();
                             let nick = member.nick.clone().unwrap_or_else(|| member.user.display_name().to_string());
@@ -236,12 +231,11 @@ async fn main() {
 
                                         if !img_data.is_empty() {
                                             let mut msg_content = format!("<@{}>", member.user.id);
-                                            if let Some(mut t) = greet_rec.text {
-                                                if !t.is_empty() {
+                                            if let Some(mut t) = greet_rec.text
+                                                && !t.is_empty() {
                                                     t = t.replace("{ping}", &format!("<@{}>", member.user.id));
                                                     msg_content = t;
                                                 }
-                                            }
 
                                             let file = fluxer_builders::file::FileAttachment::new("welcome.png", img_data);
                                             let payload = fluxer_builders::MessagePayload::new()
@@ -267,7 +261,6 @@ async fn main() {
                                 tracing::error!("Failed to send request to Welcome API");
                             }
                         }
-                    }
                 }
                 _ => {}
             }

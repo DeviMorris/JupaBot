@@ -58,7 +58,7 @@ impl PbClient {
         }
         None
     }
-
+    #[allow(clippy::too_many_arguments)]
     pub async fn save_welcome_message(
         &self,
         guild_id: &str,
@@ -134,14 +134,12 @@ impl PbClient {
             "{}/api/collections/greetings/records?filter=(guild_id='{}')",
             self.base_url, guild_id
         );
-        if let Ok(res) = self.client.get(&url).send().await {
-            if let Ok(json) = res.json::<serde_json::Value>().await {
-                if let Some(items) = json["items"].as_array() {
-                    if !items.is_empty() {
-                        return serde_json::from_value(items[0].clone()).ok();
-                    }
-                }
-            }
+        if let Ok(res) = self.client.get(&url).send().await
+            && let Ok(json) = res.json::<serde_json::Value>().await
+            && let Some(items) = json["items"].as_array()
+            && !items.is_empty()
+        {
+            return serde_json::from_value(items[0].clone()).ok();
         }
         None
     }

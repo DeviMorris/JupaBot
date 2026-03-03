@@ -126,7 +126,7 @@ pub async fn help(rest: &Rest, message: &Message, args: &[&str]) {
                 .field("Usage", "`!welcome [#channel] title: [Text] text: [Text]`", false)
                 .field("Example", "`!welcome #general title: Welcome! text: Hello, new members!`\nIf channel is omitted, sends to the current channel.", false),
             _ => embed("Unknown command")
-                .description(&format!("`!{cmd}` is not a known command.")),
+                .description(format!("`!{cmd}` is not a known command.")),
         };
 
         let payload = MessagePayload::new().add_embed(e.build()).build();
@@ -227,8 +227,8 @@ pub async fn serverinfo(rest: &Rest, message: &Message, args: &[&str]) {
     let created = snowflake_timestamp(&guild.id)
         .map(|ms| {
             let secs = ms / 1000;
-            let dt = time_from_secs(secs);
-            dt
+
+            time_from_secs(secs)
         })
         .unwrap_or_else(|| "Unknown".to_string());
 
@@ -775,10 +775,8 @@ pub async fn welcome(rest: &Rest, message: &Message, args: &[&str], db: &crate::
                 if let Err(e) = sent.add_reaction(rest, clean_emoji).await {
                     tracing::error!("Failed to add custom reaction {clean_emoji}: {e}");
                 }
-            } else {
-                if let Err(e) = sent.add_reaction(rest, "online:1478144903587734729").await {
-                    tracing::error!("Failed to add reaction: {e}");
-                }
+            } else if let Err(e) = sent.add_reaction(rest, "online:1478144903587734729").await {
+                tracing::error!("Failed to add reaction: {e}");
             }
 
             let mut role_ids = Vec::new();
@@ -789,8 +787,8 @@ pub async fn welcome(rest: &Rest, message: &Message, args: &[&str], db: &crate::
             }
             let roles_str = role_ids.join(",");
 
-            if !roles_str.is_empty() {
-                if let Err(e) = db
+            if !roles_str.is_empty()
+                && let Err(e) = db
                     .save_welcome_message(
                         &guild_id,
                         &sent.id,
@@ -801,9 +799,8 @@ pub async fn welcome(rest: &Rest, message: &Message, args: &[&str], db: &crate::
                         captcha_len,
                     )
                     .await
-                {
-                    tracing::error!("Failed to save welcome message to PocketBase: {}", e);
-                }
+            {
+                tracing::error!("Failed to save welcome message to PocketBase: {}", e);
             }
 
             let e = embed_success("Success")
@@ -829,20 +826,19 @@ pub async fn cat(rest: &Rest, message: &Message, args: &[&str]) {
         return;
     }
 
-    if let Ok(resp) = reqwest::get("https://cataas.com/cat?json=true").await {
-        if let Ok(json) = resp.json::<serde_json::Value>().await {
-            if let Some(url) = json.get("url").and_then(|u| u.as_str()) {
-                let image_url = if url.starts_with("http") {
-                    url.to_string()
-                } else {
-                    format!("https://cataas.com{url}")
-                };
-                let e = embed_image("Random Cat 🐈", &image_url).build();
-                let payload = MessagePayload::new().add_embed(e).build();
-                let _ = message.send(rest, &payload).await;
-                return;
-            }
-        }
+    if let Ok(resp) = reqwest::get("https://cataas.com/cat?json=true").await
+        && let Ok(json) = resp.json::<serde_json::Value>().await
+        && let Some(url) = json.get("url").and_then(|u| u.as_str())
+    {
+        let image_url = if url.starts_with("http") {
+            url.to_string()
+        } else {
+            format!("https://cataas.com{url}")
+        };
+        let e = embed_image("Random Cat 🐈", &image_url).build();
+        let payload = MessagePayload::new().add_embed(e).build();
+        let _ = message.send(rest, &payload).await;
+        return;
     }
     let e = embed_error("Error")
         .description("Failed to fetch cat image.")
@@ -857,15 +853,14 @@ pub async fn dog(rest: &Rest, message: &Message, args: &[&str]) {
         return;
     }
 
-    if let Ok(resp) = reqwest::get("https://dog.ceo/api/breeds/image/random").await {
-        if let Ok(json) = resp.json::<serde_json::Value>().await {
-            if let Some(url) = json.get("message").and_then(|u| u.as_str()) {
-                let e = embed_image("Random Dog 🐕", url).build();
-                let payload = MessagePayload::new().add_embed(e).build();
-                let _ = message.send(rest, &payload).await;
-                return;
-            }
-        }
+    if let Ok(resp) = reqwest::get("https://dog.ceo/api/breeds/image/random").await
+        && let Ok(json) = resp.json::<serde_json::Value>().await
+        && let Some(url) = json.get("message").and_then(|u| u.as_str())
+    {
+        let e = embed_image("Random Dog 🐕", url).build();
+        let payload = MessagePayload::new().add_embed(e).build();
+        let _ = message.send(rest, &payload).await;
+        return;
     }
     let e = embed_error("Error")
         .description("Failed to fetch dog image.")
@@ -880,15 +875,14 @@ pub async fn fox(rest: &Rest, message: &Message, args: &[&str]) {
         return;
     }
 
-    if let Ok(resp) = reqwest::get("https://randomfox.ca/floof/").await {
-        if let Ok(json) = resp.json::<serde_json::Value>().await {
-            if let Some(url) = json.get("image").and_then(|u| u.as_str()) {
-                let e = embed_image("Random Fox 🦊", url).build();
-                let payload = MessagePayload::new().add_embed(e).build();
-                let _ = message.send(rest, &payload).await;
-                return;
-            }
-        }
+    if let Ok(resp) = reqwest::get("https://randomfox.ca/floof/").await
+        && let Ok(json) = resp.json::<serde_json::Value>().await
+        && let Some(url) = json.get("image").and_then(|u| u.as_str())
+    {
+        let e = embed_image("Random Fox 🦊", url).build();
+        let payload = MessagePayload::new().add_embed(e).build();
+        let _ = message.send(rest, &payload).await;
+        return;
     }
     let e = embed_error("Error")
         .description("Failed to fetch fox image.")
@@ -903,15 +897,14 @@ pub async fn duck(rest: &Rest, message: &Message, args: &[&str]) {
         return;
     }
 
-    if let Ok(resp) = reqwest::get("https://random-d.uk/api/v2/random").await {
-        if let Ok(json) = resp.json::<serde_json::Value>().await {
-            if let Some(url) = json.get("url").and_then(|u| u.as_str()) {
-                let e = embed_image("Random Duck 🦆", url).build();
-                let payload = MessagePayload::new().add_embed(e).build();
-                let _ = message.send(rest, &payload).await;
-                return;
-            }
-        }
+    if let Ok(resp) = reqwest::get("https://random-d.uk/api/v2/random").await
+        && let Ok(json) = resp.json::<serde_json::Value>().await
+        && let Some(url) = json.get("url").and_then(|u| u.as_str())
+    {
+        let e = embed_image("Random Duck 🦆", url).build();
+        let payload = MessagePayload::new().add_embed(e).build();
+        let _ = message.send(rest, &payload).await;
+        return;
     }
     let e = embed_error("Error")
         .description("Failed to fetch duck image.")
@@ -989,7 +982,7 @@ pub async fn greet(rest: &Rest, message: &Message, args: &[&str], db: &crate::db
             send_mod_reply(rest, message, &payload, false).await;
         } else {
             let e = embed_success("Greeting Configured")
-                .description(&format!(
+                .description(format!(
                     "Automatic greeting successfully set for <#{}>",
                     target_channel
                 ))
