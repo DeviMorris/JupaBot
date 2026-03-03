@@ -146,7 +146,7 @@ pub async fn help(rest: &Rest, message: &Message, args: &[&str]) {
         )
         .field(
             "🛡️  Moderation",
-            "`!clear`  `!ban`  `!unban`  `!kick`  `!mute`  `!unmute`  `!welcome`",
+            "`!clear`  `!ban`  `!unban`  `!kick`  `!mute`  `!unmute`  `!welcome` `!greet`",
             false,
         )
         .field("😄  Fun", "`!dog`  `!cat`  `!fox`  `!duck`", false)
