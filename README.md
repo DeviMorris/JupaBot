@@ -4,7 +4,7 @@
 # JupaBot
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Community](https://img.shields.io/badge/community-join-7289da)](https://fluxer.gg/2bkFSWcs)
+[![Community](https://img.shields.io/badge/community-join-7289da)](https://fluxer.gg/J1M6Bd0G)
 [![Invite](https://img.shields.io/badge/invite-bot-5865F2)](https://web.fluxer.app/oauth2/authorize?client_id=1474871739022057472&scope=bot&permissions=8)
 
 A fully-featured example bot for the [Fluxer](https://fluxer.app) platform, built with [Fluxer.RUST](https://github.com/DeviMorris/Fluxer.RUST).
