@@ -96,7 +96,7 @@ cargo run
 
 ## Community
 
-[Fluxer.RUST Community](https://fluxer.gg/2bkFSWcs)
+[Fluxer.RUST Community](https://fluxer.gg/J1M6Bd0G)
 
 ---
 
