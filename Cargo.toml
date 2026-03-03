@@ -1,0 +1,18 @@
+[package]
+name = "jupa-bot"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+fluxer-core     = "0.1"
+fluxer-builders = "0.1"
+fluxer-rest     = "0.1"
+fluxer-types    = "0.1"
+fluxer-util     = "0.1"
+tokio              = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing            = "0.1"
+serde_json         = "1"
+serde              = { version = "1", features = ["derive"] }
+reqwest = { version = "0.13.2", features = ["json", "multipart"] }
+base64 = "0.22"
